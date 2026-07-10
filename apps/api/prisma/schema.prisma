@@ -1,0 +1,543 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum Role {
+  LEARNER
+  ADMIN
+  MENTOR
+}
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+enum RoadmapStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum ConceptType {
+  THEORY
+  PRACTICAL
+  BOTH
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PASSED
+  EXCELLENT
+  FAILED
+}
+
+enum QuestionType {
+  MCQ
+  SCENARIO
+  CODE_ANALYSIS
+  PRACTICAL
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuizResult {
+  EXCELLENT
+  PASS
+  FAIL
+}
+
+enum ProjectStatus {
+  PENDING
+  EVALUATING
+  SCORED
+  FAILED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum NotificationType {
+  XP_EARNED
+  LEVEL_UP
+  STREAK_MILESTONE
+  STREAK_AT_RISK
+  PHASE_COMPLETE
+  CERTIFICATE_ISSUED
+  ROADMAP_GENERATED
+  QUIZ_PASSED
+  QUIZ_FAILED
+  PROJECT_EVALUATED
+  VIVA_COMPLETE
+  MENTOR_REPLY
+  SUBSCRIPTION_UPDATED
+  REFERRAL_REWARDED
+  SYSTEM
+}
+
+enum SubStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+enum ReferralStatus {
+  PENDING
+  SIGNED_UP
+  REWARDED
+}
+
+// ─── Models ────────────────────────────────────────────────────────────────
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String
+  avatarUrl         String?
+  passwordHash      String?
+  emailVerified     Boolean   @default(false)
+  role              Role      @default(LEARNER)
+  plan              Plan      @default(FREE)
+  stripeCustomerId  String?   @unique
+
+  // Gamification
+  xp                      Int       @default(0)
+  level                   Int       @default(1)
+  streak                  Int       @default(0)
+  longestStreak           Int       @default(0)
+  streakFreezeCount       Int       @default(0)
+  lastActivityAt          DateTime?
+  interviewReadinessScore Int       @default(0)
+  dailyGoalProgress       Int       @default(0)
+  dailyGoalTarget         Int       @default(50)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  userRoadmaps      UserRoadmap[]
+  conceptProgress   ConceptProgress[]
+  quizAttempts      QuizAttempt[]
+  examAttempts      ExamAttempt[]
+  projects          Project[]
+  vivaSessions      VivaSession[]
+  certificates      Certificate[]
+  mentorMessages    MentorMessage[]
+  studyGroupMembers StudyGroupMember[]
+  discussions       Discussion[]
+  notifications     Notification[]
+  pushSubscriptions PushSubscription[]
+  oauthAccounts     OAuthAccount[]
+  passwordResets    PasswordResetToken[]
+  subscription      Subscription?
+  referrals         Referral[]         @relation("Referrer")
+
+  @@index([email])
+  @@index([xp])
+  @@index([streak])
+}
+
+model Skill {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  category    String
+  description String
+  iconUrl     String?
+  popularity  Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  roadmaps    Roadmap[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([popularity])
+}
+
+model Roadmap {
+  id             String    @id @default(cuid())
+  skillId        String
+  generatedFor   String    // userId or "guest"
+  estimatedWeeks Int
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  skill          Skill         @relation(fields: [skillId], references: [id])
+  phases         Phase[]
+  userRoadmaps   UserRoadmap[]
+
+  @@index([skillId])
+  @@index([generatedFor])
+}
+
+model UserRoadmap {
+  id           String        @id @default(cuid())
+  userId       String
+  roadmapId    String
+  status       RoadmapStatus @default(ACTIVE)
+  startedAt    DateTime      @default(now())
+  completedAt  DateTime?
+  masteryScore Float?
+
+  // Relations
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmap      Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roadmapId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Phase {
+  id            String    @id @default(cuid())
+  roadmapId     String
+  title         String
+  order         Int
+  estimatedDays Int
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  roadmap       Roadmap       @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  concepts      Concept[]
+  examAttempts  ExamAttempt[]
+  projects      Project[]
+  vivaSessions  VivaSession[]
+  certificates  Certificate[]
+
+  @@unique([roadmapId, order])
+  @@index([roadmapId])
+}
+
+model Concept {
+  id               String      @id @default(cuid())
+  phaseId          String
+  title            String
+  order            Int
+  estimatedMinutes Int
+  type             ConceptType @default(THEORY)
+  lessonContent    String?     @db.Text
+  description      String?     @db.Text
+  lessonCachedAt   DateTime?
+  createdAt        DateTime    @default(now())
+
+  // Relations
+  phase            Phase             @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  progress         ConceptProgress[]
+  questions        Question[]
+  quizAttempts     QuizAttempt[]
+  discussions      Discussion[]
+
+  @@index([phaseId])
+  @@index([phaseId, order])
+}
+
+model ConceptProgress {
+  id            String         @id @default(cuid())
+  userId        String
+  conceptId     String
+  status        ProgressStatus @default(NOT_STARTED)
+  lastAttemptAt DateTime?
+  bestQuizScore Float?
+  attemptCount  Int            @default(0)
+
+  // Relations
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concept       Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conceptId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Question {
+  id            String       @id @default(cuid())
+  conceptId     String?
+  skillSlug     String
+  type          QuestionType
+  difficulty    Difficulty
+  questionText  String       @db.Text
+  codeSnippet   String?      @db.Text
+  options       Json?
+  correctAnswer String       @db.Text
+  explanation   String       @db.Text
+  hint          String?
+  embeddingHash String?
+  usageCount    Int          @default(0)
+  createdAt     DateTime     @default(now())
+
+  // Relations
+  concept       Concept? @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+
+  @@index([conceptId])
+  @@index([skillSlug])
+  @@index([type])
+  @@index([difficulty])
+}
+
+model QuizAttempt {
+  id          String     @id @default(cuid())
+  userId      String
+  conceptId   String
+  questionIds String[]
+  answers     Json
+  score       Float
+  result      QuizResult
+  completedAt DateTime   @default(now())
+
+  // Relations
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concept     Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([conceptId])
+}
+
+model ExamAttempt {
+  id           String    @id @default(cuid())
+  userId       String
+  phaseId      String
+  questionIds  String[]
+  answers      Json
+  score        Float
+  passed       Boolean
+  weakConcepts Json?
+  recoveryPlan Json?
+  completedAt  DateTime  @default(now())
+
+  // Relations
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phase        Phase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([phaseId])
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  userId         String
+  phaseId        String
+  repoUrl        String
+  description    String        @db.Text
+  screenshotUrls String[]
+  techStack      String[]
+  status         ProjectStatus @default(PENDING)
+  evaluation     Json?
+  totalScore     Float?
+  passed         Boolean?
+  submittedAt    DateTime      @default(now())
+  evaluatedAt    DateTime?
+
+  // Relations
+  user           User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phase          Phase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([phaseId])
+  @@index([status])
+}
+
+model VivaSession {
+  id          String    @id @default(cuid())
+  userId      String
+  phaseId     String
+  turns       Json
+  totalScore  Float?
+  passed      Boolean?
+  completedAt DateTime?
+  startedAt   DateTime  @default(now())
+
+  // Relations
+  user        User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phase       Phase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([phaseId])
+}
+
+model Certificate {
+  id           String   @id @default(cuid())
+  userId       String
+  phaseId      String
+  certCode     String   @unique
+  skillName    String
+  phaseTitle   String
+  masteryScore Float
+  pdfUrl       String?
+  issuedAt     DateTime @default(now())
+
+  // Relations
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phase        Phase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([certCode])
+}
+
+model MentorMessage {
+  id             String      @id @default(cuid())
+  userId         String
+  role           MessageRole
+  content        String      @db.Text
+  contextSkillId String?
+  createdAt      DateTime    @default(now())
+
+  // Relations
+  user           User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model StudyGroup {
+  id        String   @id @default(cuid())
+  name      String
+  skillSlug String
+  maxMembers Int     @default(50)
+  createdAt DateTime @default(now())
+
+  // Relations
+  members     StudyGroupMember[]
+  discussions Discussion[]
+
+  @@index([skillSlug])
+}
+
+model StudyGroupMember {
+  userId   String
+  groupId  String
+  joinedAt DateTime @default(now())
+
+  // Relations
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+}
+
+model Discussion {
+  id        String   @id @default(cuid())
+  conceptId String?
+  groupId   String?
+  authorId  String
+  content   String   @db.Text
+  upvotes   Int      @default(0)
+  parentId  String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  concept   Concept?     @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  group     StudyGroup?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Discussion?  @relation("Replies", fields: [parentId], references: [id])
+  replies   Discussion[] @relation("Replies")
+
+  @@index([conceptId])
+  @@index([groupId])
+  @@index([authorId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  keys      Json
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model OAuthAccount {
+  id                String @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+
+  // Relations
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  stripeSubId       String    @unique
+  plan              Plan
+  status            SubStatus
+  currentPeriodEnd  DateTime
+  cancelAtPeriodEnd Boolean   @default(false)
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id            String         @id @default(cuid())
+  referrerId    String
+  refereeEmail  String
+  code          String         @unique
+  status        ReferralStatus @default(PENDING)
+  createdAt     DateTime       @default(now())
+
+  // Relations
+  referrer      User @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+  @@index([code])
+}

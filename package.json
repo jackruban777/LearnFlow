@@ -1,0 +1,28 @@
+{
+  "name": "learnflow",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=apps/api\" \"npm run dev --workspace=apps/frontend\"",
+    "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/frontend",
+    "test": "npm run test --workspaces --if-present",
+    "db:push": "npm run db:push --workspace=apps/api",
+    "db:seed": "npm run db:seed --workspace=apps/api",
+    "db:studio": "npm run db:studio --workspace=apps/api"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "tar": "^7.5.19"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  }
+}
