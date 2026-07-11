@@ -479,28 +479,28 @@ async function getPhasesProgress(userId: string, phaseIds: string[]) {
   const phaseProgressMap = new Map();
 
   for (const phaseId of phaseIds) {
-    const phaseExams = dbExams.filter(e => e.phaseId === phaseId);
-    const phaseProjects = dbProjects.filter(p => p.phaseId === phaseId);
-    const phaseVivas = dbVivas.filter(v => v.phaseId === phaseId);
-    const phaseConcepts = concepts.filter(c => c.phaseId === phaseId);
-    const phaseConceptProgs = conceptProgresses.filter(cp => phaseConcepts.some(c => c.id === cp.conceptId));
+    const phaseExams = dbExams.filter((e: any) => e.phaseId === phaseId);
+    const phaseProjects = dbProjects.filter((p: any) => p.phaseId === phaseId);
+    const phaseVivas = dbVivas.filter((v: any) => v.phaseId === phaseId);
+    const phaseConcepts = concepts.filter((c: any) => c.phaseId === phaseId);
+    const phaseConceptProgs = conceptProgresses.filter((cp: any) => phaseConcepts.some((c: any) => c.id === cp.conceptId));
 
     const examAttemptsCount = phaseExams.length;
-    const bestExamScore = phaseExams.length > 0 ? Math.max(...phaseExams.map(e => e.score)) : null;
-    const examPassed = phaseExams.some(e => e.passed);
+    const bestExamScore = phaseExams.length > 0 ? Math.max(...phaseExams.map((e: any) => e.score)) : null;
+    const examPassed = phaseExams.some((e: any) => e.passed);
 
     // Latest project
-    const sortedProjects = [...phaseProjects].sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+    const sortedProjects = [...phaseProjects].sort((a: any, b: any) => b.submittedAt.getTime() - a.submittedAt.getTime());
     const latestProject = sortedProjects[0];
     const projectStatus = latestProject ? latestProject.status : null;
     const projectScore = latestProject ? latestProject.totalScore : null;
 
     // Latest viva
-    const sortedVivas = [...phaseVivas].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
+    const sortedVivas = [...phaseVivas].sort((a: any, b: any) => b.startedAt.getTime() - a.startedAt.getTime());
     const latestViva = sortedVivas[0];
     const vivaScore = latestViva ? latestViva.totalScore : null;
 
-    const hasStartedConcepts = phaseConceptProgs.some(cp => cp.status !== 'NOT_STARTED');
+    const hasStartedConcepts = phaseConceptProgs.some((cp: any) => cp.status !== 'NOT_STARTED');
 
     let status = 'NOT_STARTED';
     if (examPassed) {
@@ -520,7 +520,7 @@ async function getPhasesProgress(userId: string, phaseIds: string[]) {
   }
 
   // Also build concept progress lookup
-  const conceptProgressMap = new Map(conceptProgresses.map(cp => [cp.conceptId, cp]));
+  const conceptProgressMap = new Map(conceptProgresses.map((cp: any) => [cp.conceptId, cp]));
 
   return {
     phaseProgressMap,
