@@ -7,10 +7,10 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/apps/api/src/server.js",
     "test": "jest --passWithNoTests",
-    "db:push": "prisma db push",
+    "db:push": "prisma db push --schema=./prisma/schema.prisma",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "db:generate": "prisma generate"
+    "db:studio": "prisma studio --schema=./prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma"
   },
   "dependencies": {
     "@learnflow/shared": "*",
