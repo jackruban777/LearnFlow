@@ -65,7 +65,7 @@ phasesRouter.get('/:id/exam', requireAuth, async (req, res, next) => {
             where: { conceptId: concept.id },
             select: { questionText: true }
           });
-          const excludeTexts = existingQs.map(q => q.questionText);
+          const excludeTexts = existingQs.map((q: { questionText: string }) => q.questionText);
 
           const generated = await generateQuestions(concept.id, needed, totalCount, excludeTexts);
           try {

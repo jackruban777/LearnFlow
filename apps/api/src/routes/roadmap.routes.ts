@@ -77,7 +77,7 @@ roadmapRouter.post('/generate', optionalAuth, guestRoadmapLimit, async (req, res
           }
         });
 
-        const allConcepts = savedRoadmap.phases.flatMap(p => p.concepts);
+        const allConcepts = savedRoadmap.phases.flatMap((p: { concepts: { id: string }[] }) => p.concepts);
         if (allConcepts.length > 0) {
           await prisma.conceptProgress.createMany({
             data: allConcepts.map((c: any) => ({
@@ -469,7 +469,7 @@ async function getPhasesProgress(userId: string, phaseIds: string[]) {
     })
   ]);
 
-  const conceptIds = concepts.map(c => c.id);
+  const conceptIds = concepts.map((c: { id: string }) => c.id);
   const conceptProgresses = conceptIds.length > 0
     ? await prisma.conceptProgress.findMany({
         where: { userId, conceptId: { in: conceptIds } }

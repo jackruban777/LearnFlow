@@ -169,18 +169,18 @@ progressRouter.get('/skill/:id', requireAuth, async (req, res, next) => {
         ]);
 
         examAttempts = phaseIds.map(phaseId => {
-          const phaseExams = dbExams.filter(e => e.phaseId === phaseId);
-          return phaseExams.length > 0 ? Math.max(...phaseExams.map(e => e.score)) : 0;
+          const phaseExams = dbExams.filter((e: { phaseId: string; score: number }) => e.phaseId === phaseId);
+          return phaseExams.length > 0 ? Math.max(...phaseExams.map((e: { score: number }) => e.score)) : 0;
         });
 
         projectAttempts = phaseIds.map(phaseId => {
-          const phaseProjects = dbProjects.filter(p => p.phaseId === phaseId);
+          const phaseProjects = dbProjects.filter((p: { phaseId: string; submittedAt: Date; totalScore: number | null }) => p.phaseId === phaseId);
           const sorted = [...phaseProjects].sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
           return sorted[0]?.totalScore || 0;
         });
 
         vivaAttempts = phaseIds.map(phaseId => {
-          const phaseVivas = dbVivas.filter(v => v.phaseId === phaseId);
+          const phaseVivas = dbVivas.filter((v: { phaseId: string; startedAt: Date; totalScore: number | null }) => v.phaseId === phaseId);
           const sorted = [...phaseVivas].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
           return sorted[0]?.totalScore || 0;
         });

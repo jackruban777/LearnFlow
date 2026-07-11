@@ -49,7 +49,7 @@ questionsRouter.get('/concept/:conceptId', requireAuth, async (req, res, next) =
           where: { conceptId },
           select: { questionText: true }
         });
-        const excludeTexts = existingQs.map(q => q.questionText);
+        const excludeTexts = existingQs.map((q: { questionText: string }) => q.questionText);
 
         const generated = await generateQuestions(conceptId!, needed, totalCount, excludeTexts);
         try {
