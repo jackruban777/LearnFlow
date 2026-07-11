@@ -2,6 +2,6 @@
 // @learnflow/shared – public API
 // ─────────────────────────────────────────────
 
-export * from './types';
-export * from './constants';
-export * from './schemas';
+export * from './types/index.js';
+export * from './constants/index.js';
+export * from './schemas/index.js';
