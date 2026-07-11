@@ -277,13 +277,13 @@ roadmapRouter.get('/user', requireAuth, async (req, res, next) => {
         throw new Error('User not found in Postgres');
       }
 
-      const phaseIds = dbRoadmaps.flatMap(ur => ur.roadmap.phases.map(p => p.id));
+      const phaseIds = dbRoadmaps.flatMap((ur: any) => ur.roadmap.phases.map((p: any) => p.id));
       const { phaseProgressMap, conceptProgressMap } = phaseIds.length > 0
         ? await getPhasesProgress(userId, phaseIds)
-        : { phaseProgressMap: new Map(), conceptProgressMap: new Map() };
+        : { phaseProgressMap: new Map<string, any>(), conceptProgressMap: new Map<string, any>() };
 
-      roadmaps = dbRoadmaps.map(ur => {
-        const transformedPhases = ur.roadmap.phases.map(phase => {
+      roadmaps = dbRoadmaps.map((ur: any) => {
+        const transformedPhases = ur.roadmap.phases.map((phase: any) => {
           const phaseProg = phaseProgressMap.get(phase.id) || {
             status: 'NOT_STARTED',
             examScore: null,
@@ -292,8 +292,8 @@ roadmapRouter.get('/user', requireAuth, async (req, res, next) => {
             projectScore: null,
             vivaScore: null
           };
-          const transformedConcepts = phase.concepts.map(concept => {
-            const conceptProg = conceptProgressMap.get(concept.id);
+          const transformedConcepts = phase.concepts.map((concept: any) => {
+            const conceptProg: any = conceptProgressMap.get(concept.id);
             return {
               ...concept,
               status: conceptProg?.status ?? 'NOT_STARTED',
@@ -380,10 +380,10 @@ roadmapRouter.get('/:id', requireAuth, async (req, res, next) => {
       }
 
       if (dbUserRoadmap) {
-        const phaseIds = dbUserRoadmap.roadmap.phases.map(p => p.id);
+        const phaseIds = dbUserRoadmap.roadmap.phases.map((p: any) => p.id);
         const { phaseProgressMap, conceptProgressMap } = await getPhasesProgress(userId, phaseIds);
 
-        const transformedPhases = dbUserRoadmap.roadmap.phases.map(phase => {
+        const transformedPhases = dbUserRoadmap.roadmap.phases.map((phase: any) => {
           const phaseProg = phaseProgressMap.get(phase.id) || {
             status: 'NOT_STARTED',
             examScore: null,
@@ -392,8 +392,8 @@ roadmapRouter.get('/:id', requireAuth, async (req, res, next) => {
             projectScore: null,
             vivaScore: null
           };
-          const transformedConcepts = phase.concepts.map(concept => {
-            const conceptProg = conceptProgressMap.get(concept.id);
+          const transformedConcepts = phase.concepts.map((concept: any) => {
+            const conceptProg: any = conceptProgressMap.get(concept.id);
             return {
               ...concept,
               status: conceptProg?.status ?? 'NOT_STARTED',
