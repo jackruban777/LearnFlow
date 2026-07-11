@@ -75,7 +75,7 @@ async function fetchWebContextHtml(skillName: string): Promise<string> {
     if (!t) continue;
     
     const nextTitleIndex = titlesList[i + 1] ? titlesList[i + 1]!.index : Infinity;
-    const matchedSnippet = snippetsList.find(s => s.index > t.index && s.index < nextTitleIndex);
+    const matchedSnippet = snippetsList.find((s: any) => s.index > t.index && s.index < nextTitleIndex);
     const snippetText = matchedSnippet ? matchedSnippet.text : (snippetsList[i] ? snippetsList[i]!.text : '');
     
     results.push(`${i + 1}. ${t.title}: ${snippetText}`);
@@ -112,7 +112,7 @@ export async function getWebContextForSkill(skillName: string): Promise<string> 
 
       const topResults = searchResults.results.slice(0, 5);
       const snippets = topResults
-        .map((res, index) => `${index + 1}. ${res.title}: ${res.description}`)
+        .map((res: any, index: number) => `${index + 1}. ${res.title}: ${res.description}`)
         .join('\n');
 
       console.log(`✅ Successfully fetched web context via library for: ${skillName}`);

@@ -19,11 +19,11 @@ export async function startVivaSession(userId: string, phaseId: string): Promise
     if (phase) {
       phaseTitle = phase.title;
     } else {
-      const mockPhase = mockDb.phases.find(p => p.id === phaseId);
+      const mockPhase = mockDb.phases.find((p: any) => p.id === phaseId);
       if (mockPhase) phaseTitle = mockPhase.title;
     }
   } catch (err) {
-    const mockPhase = mockDb.phases.find(p => p.id === phaseId);
+    const mockPhase = mockDb.phases.find((p: any) => p.id === phaseId);
     if (mockPhase) phaseTitle = mockPhase.title;
   }
 
@@ -89,7 +89,7 @@ Return only the JSON object. Do not wrap in markdown tags.`;
 
   return {
     sessionId,
-    questions: questions.map((q) => ({
+    questions: questions.map((q: any) => ({
       question: q.question,
       difficulty: q.difficulty
     }))
@@ -113,7 +113,7 @@ export async function evaluateVivaAnswer(
   }
 
   if (!session) {
-    const dbSession = mockDb.vivaSessions.find(s => s.id === sessionId);
+    const dbSession = mockDb.vivaSessions.find((s: any) => s.id === sessionId);
     if (dbSession) {
       session = dbSession.turns as unknown as RedisVivaSession;
       isFallback = true;

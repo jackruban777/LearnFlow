@@ -3,6 +3,16 @@ import { prisma } from '../../lib/prisma.js';
 import { mockDb } from '../../lib/mockDb.js';
 import { isMockAiEnabled, getChatCompletion } from './openai.js';
 
+interface AIQuestion {
+  text: string;
+  type: QuestionType;
+  difficulty: Difficulty;
+  options: string[] | null;
+  correctAnswer: string;
+  explanation: string;
+  codeSnippet: string | null;
+}
+
 export async function getSeenQuestionIds(userId: string): Promise<string[]> {
   try {
     const quizAttempts = await prisma.quizAttempt.findMany({
@@ -14,8 +24,8 @@ export async function getSeenQuestionIds(userId: string): Promise<string[]> {
       select: { questionIds: true }
     });
     const ids = new Set<string>();
-    quizAttempts.forEach(q => q.questionIds.forEach(id => ids.add(id)));
-    examAttempts.forEach(e => e.questionIds.forEach(id => ids.add(id)));
+    quizAttempts.forEach((q: any) => q.questionIds.forEach((id: any) => ids.add(id)));
+    examAttempts.forEach((e: any) => e.questionIds.forEach((id: any) => ids.add(id)));
     return Array.from(ids);
   } catch (err) {
     const ids = new Set<string>();
@@ -62,7 +72,7 @@ export async function generateQuestions(
       skillSlug = concept.phase?.roadmap?.skill?.slug || 'general';
     } else {
       // Look in mock database
-      const mockConcept = mockDb.concepts.find(c => c.id === conceptId);
+      const mockConcept = mockDb.concepts.find((c: any) => c.id === conceptId);
       if (mockConcept) {
         conceptTitle = mockConcept.title;
         conceptDesc = mockConcept.description || '';
@@ -70,7 +80,7 @@ export async function generateQuestions(
     }
   } catch (err) {
     console.warn('⚠️ Database disconnected, using mockDb for concept info lookup:', (err as Error).message);
-    const mockConcept = mockDb.concepts.find(c => c.id === conceptId);
+    const mockConcept = mockDb.concepts.find((c: any) => c.id === conceptId);
     if (mockConcept) {
       conceptTitle = mockConcept.title;
       conceptDesc = mockConcept.description || '';
@@ -88,7 +98,7 @@ export async function generateQuestions(
 Generate exactly ${limit} unique multiple choice questions (MCQ, SCENARIO, or CODE_ANALYSIS) for the concept "${conceptTitle}".
 Concept Description: ${conceptDesc}
 ${excludeTexts.length > 0 ? `Do NOT generate any questions that are similar to the following existing questions:
-${excludeTexts.map((t, idx) => `${idx + 1}. ${t}`).join('\n')}` : ''}
+${excludeTexts.map((t: any, idx: number) => `${idx + 1}. ${t}`).join('\n')}` : ''}
 You MUST respond with a JSON object strictly matching this schema:
 {
   "questions": [
@@ -110,22 +120,14 @@ Ensure options are highly realistic, and the correctAnswer is exactly one of the
     ], { response_format: { type: 'json_object' } });
 
     const data = JSON.parse(responseText.trim()) as {
-      questions: {
-        text: string;
-        type: QuestionType;
-        difficulty: Difficulty;
-        options: string[] | null;
-        correctAnswer: string;
-        explanation: string;
-        codeSnippet: string | null;
-      }[];
+      questions: AIQuestion[];
     };
 
-    const formattedQuestions: Question[] = data.questions.map((q, index) => {
+    const formattedQuestions: Question[] = data.questions.map((q: AIQuestion, index: number) => {
       let options = q.options ? [...q.options] : [];
       const correctAns = q.correctAnswer || '';
       if (options.length > 0) {
-        const correctIndex = options.findIndex(opt => opt.trim().toLowerCase() === correctAns.trim().toLowerCase());
+        const correctIndex = options.findIndex((opt: string) => opt.trim().toLowerCase() === correctAns.trim().toLowerCase());
         if (correctIndex !== -1) {
           const actualCorrect = options[correctIndex]!;
           options.splice(correctIndex, 1);

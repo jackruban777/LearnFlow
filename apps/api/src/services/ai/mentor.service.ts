@@ -81,7 +81,7 @@ Provide helpful, code-rich, and engaging assistance. Keep explanations structure
 
       const apiMessages: ChatMessage[] = [
         { role: 'system', content: systemPrompt },
-        ...messages.map(m => ({
+        ...messages.map((m: any) => ({
           role: m.role,
           content: m.content
         }))

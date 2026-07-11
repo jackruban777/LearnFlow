@@ -351,8 +351,8 @@ function extractTopicsFromWebContext(webContext?: string): string[] {
       if (match && match[1]) {
         const listItems = match[1]
           .split(/,|\band\b|\bor\b/gi)
-          .map(item => item.trim())
-          .filter(item => item.length > 2 && item.length < 30);
+          .map((item: string) => item.trim())
+          .filter((item: string) => item.length > 2 && item.length < 30);
         for (const item of listItems) {
           const cleanedItem = item.replace(/^[a-z]/, c => c.toUpperCase());
           if (!topics.includes(cleanedItem)) {

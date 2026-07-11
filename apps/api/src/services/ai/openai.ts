@@ -18,7 +18,7 @@ export async function getChatCompletion(
     console.log('🤖 OpenAI wrapper running in MOCK mode.');
     // Simple heuristic parser for mock responses
     const lastUserMessage = messages[messages.length - 1]?.content.toLowerCase() || '';
-    const systemPrompt = messages.find(m => m.role === 'system')?.content.toLowerCase() || '';
+    const systemPrompt = messages.find((m: any) => m.role === 'system')?.content.toLowerCase() || '';
 
     // Check if JSON response is expected
     const isJson = options?.response_format?.type === 'json_object';
