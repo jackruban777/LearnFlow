@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { RegisterSchema, LoginSchema, ResetPasswordSchema, ForgotPasswordSchema, isEmailValidAndAppropriate } from '@learnflow/shared';
 import { prisma } from '../lib/prisma.js';
 import { redis, REDIS_KEYS } from '../lib/redis.js';

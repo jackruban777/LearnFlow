@@ -15,8 +15,7 @@
   "dependencies": {
     "@learnflow/shared": "*",
     "@prisma/client": "^5.13.0",
-    "@types/bcrypt": "^5.0.2",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "bullmq": "^5.7.7",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
@@ -32,6 +31,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.7.5",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
