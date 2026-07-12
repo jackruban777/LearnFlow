@@ -61,6 +61,14 @@ export function createApp() {
 
   app.use('/api/', globalLimiter);
 
+  // ─── Root Route ───────────────────────────────────────────────────────────
+  app.get('/', (_req: Request, res: Response) => {
+    res.status(200).json({
+      status: 'success',
+      message: 'LearnFlow API is running 🚀',
+    });
+  });
+
   // ─── Health Check ─────────────────────────────────────────────────────────
   app.get('/health', (_req: Request, res: Response) => {
     res.json({
