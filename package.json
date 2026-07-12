@@ -11,6 +11,7 @@
     "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/api && npm run build --workspace=apps/frontend",
     "start": "npm run start --workspace=apps/api",
     "test": "npm run test --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace=apps/api",
     "db:push": "npm run db:push --workspace=apps/api",
     "db:seed": "npm run db:seed --workspace=apps/api",
     "db:studio": "npm run db:studio --workspace=apps/api"
