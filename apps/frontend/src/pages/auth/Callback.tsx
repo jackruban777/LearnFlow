@@ -27,9 +27,9 @@ export function Callback() {
           setProvider(mockProvider);
           setStatus('Creating mock session…');
 
-          const email = `mock.${mockProvider}@learnflow.dev`;
+          const email = `developer.${mockProvider}${Date.now()}@learnflow.dev`;
           const name = mockProvider === 'google' ? 'Mock Google Learner' : 'Mock GitHub Learner';
-          const providerAccountId = `mock-${mockProvider}-${Date.now()}`;
+          const providerAccountId = `${mockProvider}-dev-${Date.now()}`;
 
           const res = await api.post('/auth/oauth-login', {
             email,
@@ -146,7 +146,26 @@ export function Callback() {
 
       } catch (err: any) {
         console.error('[Callback] OAuth error:', err);
-        const msg = err?.response?.data?.message || err.message || 'OAuth authentication failed.';
+        
+        // Extract detailed error message
+        let msg = 'OAuth authentication failed. Please try again.';
+        
+        if (err?.response?.data?.message) {
+          msg = err.response.data.message;
+        } else if (err?.response?.data?.error) {
+          msg = err.response.data.error;
+        } else if (err?.message) {
+          msg = err.message;
+        }
+        
+        // Log more details for debugging
+        console.error('[Callback] Error details:', {
+          statusCode: err?.response?.status,
+          data: err?.response?.data,
+          message: msg,
+          fullError: err,
+        });
+        
         setError(msg);
         showToast('error', 'Authentication failed', msg);
         setTimeout(() => navigate('/auth/login'), 3500);

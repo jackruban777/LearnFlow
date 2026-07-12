@@ -26,10 +26,12 @@ export function useAuth() {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('[Auth] Attempting login for:', email);
       const res = await api.post('/auth/login', { email, password });
       const { token, user: userData } = res.data.data;
       setAccessToken(token);
       setUser(userData);
+      console.log('[Auth] Login successful for:', userData.email);
       showToast('success', 'Welcome back!', `Logged in as ${userData.name}`);
       
       const enrolled = await handlePendingEnrollment();
@@ -37,7 +39,8 @@ export function useAuth() {
         navigate('/dashboard');
       }
     } catch (err: any) {
-      const message = err.response?.data?.message ?? 'Login failed';
+      console.error('[Auth] Login error:', err);
+      const message = err.response?.data?.message ?? err.message ?? 'Login failed. Please check your credentials.';
       showToast('error', 'Login failed', message);
       throw err;
     }
@@ -45,10 +48,12 @@ export function useAuth() {
 
   const register = async (name: string, email: string, password: string) => {
     try {
+      console.log('[Auth] Attempting registration for:', email);
       const res = await api.post('/auth/register', { name, email, password });
       const { token, user: userData } = res.data.data;
       setAccessToken(token);
       setUser(userData);
+      console.log('[Auth] Registration successful for:', userData.email);
       showToast('success', 'Account created!', 'Welcome to LearnFlow 🎉');
       
       const enrolled = await handlePendingEnrollment();
@@ -56,7 +61,8 @@ export function useAuth() {
         navigate('/onboarding');
       }
     } catch (err: any) {
-      const message = err.response?.data?.message ?? 'Registration failed';
+      console.error('[Auth] Registration error:', err);
+      const message = err.response?.data?.message ?? err.message ?? 'Registration failed. Please try again.';
       showToast('error', 'Registration failed', message);
       throw err;
     }
