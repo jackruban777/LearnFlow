@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 
 const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
 
@@ -10,7 +10,7 @@ export const redis = new Redis(REDIS_URL, {
   maxRetriesPerRequest: 1,
   enableReadyCheck: false,
   lazyConnect: true,
-  retryStrategy(times) {
+  retryStrategy(times: number) {
     retryCount = times;
     if (times > MAX_RETRIES) {
       return null; // stop retrying

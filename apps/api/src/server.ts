@@ -1,7 +1,16 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import http from 'http';
 import { createApp } from './app.js';
 import { prisma } from './lib/prisma.js';
 import { redis } from './lib/redis.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config();
 
 const PORT = parseInt(process.env['PORT'] ?? '4000', 10);
 const NODE_ENV = process.env['NODE_ENV'] ?? 'development';

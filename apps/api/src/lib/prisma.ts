@@ -1,4 +1,13 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config();
 
 // Provide a dummy fallback so Prisma doesn't throw a validation error at startup
 // when DATABASE_URL is not set. All actual DB calls fall back to mockDb on error.

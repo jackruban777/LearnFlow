@@ -1,0 +1,100 @@
+﻿{
+    "compilerOptions": {
+        "target": "es2020",
+        "useDefineForClassFields": true,
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "es2020"
+        ],
+        "module": "esnext",
+        "skipLibCheck": true,
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "strict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "baseUrl": "./",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "@learnflow/shared": [
+                "../../packages/shared/src"
+            ]
+        },
+        "allowSyntheticDefaultImports": true,
+        "resolvePackageJsonExports": true,
+        "resolvePackageJsonImports": true,
+        "preserveConstEnums": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "strictBuiltinIteratorReturn": true,
+        "alwaysStrict": true,
+        "useUnknownInCatchVariables": true
+    },
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ],
+    "files": [
+        "./src/App.tsx",
+        "./src/main.tsx",
+        "./src/vite-env.d.ts",
+        "./src/components/ProtectedRoute.tsx",
+        "./src/components/layout/AppShell.tsx",
+        "./src/components/layout/Sidebar.tsx",
+        "./src/components/layout/TopNav.tsx",
+        "./src/components/ui/Certificate.tsx",
+        "./src/components/ui/EmptyState.tsx",
+        "./src/components/ui/GlassBadge.tsx",
+        "./src/components/ui/GlassButton.tsx",
+        "./src/components/ui/GlassCard.tsx",
+        "./src/components/ui/GlassInput.tsx",
+        "./src/components/ui/GlassModal.tsx",
+        "./src/components/ui/LoadingSpinner.tsx",
+        "./src/components/ui/ProgressRing.tsx",
+        "./src/components/ui/Toast.tsx",
+        "./src/hooks/useAuth.ts",
+        "./src/hooks/useNotification.ts",
+        "./src/lib/api.ts",
+        "./src/lib/supabase.ts",
+        "./src/pages/Certificates.tsx",
+        "./src/pages/Concept.tsx",
+        "./src/pages/Courses.tsx",
+        "./src/pages/Dashboard.tsx",
+        "./src/pages/Exam.tsx",
+        "./src/pages/Explore.tsx",
+        "./src/pages/Landing.tsx",
+        "./src/pages/Leaderboard.tsx",
+        "./src/pages/MentorChat.tsx",
+        "./src/pages/Onboarding.tsx",
+        "./src/pages/ProjectSubmit.tsx",
+        "./src/pages/Quiz.tsx",
+        "./src/pages/Roadmap.tsx",
+        "./src/pages/Settings.tsx",
+        "./src/pages/Viva.tsx",
+        "./src/pages/auth/Callback.tsx",
+        "./src/pages/auth/ForgotPassword.tsx",
+        "./src/pages/auth/Login.tsx",
+        "./src/pages/auth/Register.tsx",
+        "./src/pages/auth/VerifyEmail.tsx",
+        "./src/providers/NotificationProvider.tsx",
+        "./src/providers/QueryProvider.tsx",
+        "./src/stores/auth.store.ts"
+    ],
+    "include": [
+        "src"
+    ]
+}

@@ -34,22 +34,8 @@ authRouter.post('/register', async (req, res, next) => {
       });
     } catch (dbErr) {
       if (dbErr instanceof AppError) throw dbErr;
-      console.warn('⚠️ Database register failed, saving to mockDb:', (dbErr as Error).message);
-      
-      const existingMock = mockDb.findUserByEmail(validated.email);
-      if (existingMock) {
-        throw new AppError('Email is already registered', 400, 'EMAIL_EXISTS');
-      }
-
-      user = mockDb.createUser({
-        name: validated.name,
-        email: validated.email,
-        passwordHash,
-        role: 'LEARNER',
-        plan: 'FREE',
-        xp: 0,
-        level: 1,
-      });
+      console.error('❌ Registration failed while writing to database:', dbErr);
+      throw new AppError('Unable to create your account right now. Please try again.', 503, 'REGISTRATION_FAILED');
     }
 
     const token = await signToken({ userId: user.id, email: user.email, role: user.role, plan: user.plan });
@@ -91,8 +77,8 @@ authRouter.post('/login', async (req, res, next) => {
     try {
       user = await prisma.user.findUnique({ where: { email: validated.email } });
     } catch (dbErr) {
-      console.warn('⚠️ Database login lookup failed, reading from mockDb:', (dbErr as Error).message);
-      user = mockDb.findUserByEmail(validated.email);
+      console.error('❌ Login lookup failed while reading from database:', dbErr);
+      throw new AppError('Authentication service is temporarily unavailable. Please try again.', 503, 'AUTH_SERVICE_UNAVAILABLE');
     }
 
     if (!user || !user.passwordHash) {
@@ -151,8 +137,8 @@ authRouter.post('/refresh', async (req, res, next) => {
     try {
       user = await prisma.user.findUnique({ where: { id: payload.userId } });
     } catch (dbErr) {
-      console.warn('⚠️ Database refresh lookup failed, reading from mockDb:', (dbErr as Error).message);
-      user = mockDb.findUserById(payload.userId);
+      console.error('❌ Refresh lookup failed while reading from database:', dbErr);
+      throw new AppError('Authentication service is temporarily unavailable. Please try again.', 503, 'AUTH_SERVICE_UNAVAILABLE');
     }
 
     if (!user) {
