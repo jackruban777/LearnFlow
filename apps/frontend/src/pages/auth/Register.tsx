@@ -42,17 +42,11 @@ export function Register() {
           queryParams: { access_type: 'offline', prompt: 'consent' },
         },
       });
-      if (error) {
-        if (error.message === 'MOCK_FALLBACK') {
-          window.location.href = `${window.location.origin}/auth/callback?mock=google`;
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
       // Supabase will redirect the browser — loading state persists until navigation
     } catch (err: any) {
-      console.warn('Google sign up failed, falling back to mock:', err);
-      window.location.href = `${window.location.origin}/auth/callback?mock=google`;
+      console.error('Google sign up failed:', err);
+      showToast('error', 'Google Sign Up Failed', err.message || 'Could not connect to authentication provider');
     } finally {
       setOauthLoading(null);
     }
@@ -68,17 +62,11 @@ export function Register() {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
-      if (error) {
-        if (error.message === 'MOCK_FALLBACK') {
-          window.location.href = `${window.location.origin}/auth/callback?mock=github`;
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
       // Supabase will redirect the browser — loading state persists until navigation
     } catch (err: any) {
-      console.warn('GitHub sign up failed, falling back to mock:', err);
-      window.location.href = `${window.location.origin}/auth/callback?mock=github`;
+      console.error('GitHub sign up failed:', err);
+      showToast('error', 'GitHub Sign Up Failed', err.message || 'Could not connect to authentication provider');
     } finally {
       setOauthLoading(null);
     }

@@ -39,16 +39,10 @@ export function Login() {
           queryParams: { access_type: 'offline', prompt: 'consent' },
         },
       });
-      if (error) {
-        if (error.message === 'MOCK_FALLBACK') {
-          window.location.href = `${window.location.origin}/auth/callback?mock=google`;
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
     } catch (err: any) {
-      console.warn('Google sign in failed, falling back to mock:', err);
-      window.location.href = `${window.location.origin}/auth/callback?mock=google`;
+      console.error('Google sign in failed:', err);
+      showToast('error', 'Google Sign In Failed', err.message || 'Could not connect to authentication provider');
     } finally {
       setOauthLoading(null);
     }
@@ -64,16 +58,10 @@ export function Login() {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
-      if (error) {
-        if (error.message === 'MOCK_FALLBACK') {
-          window.location.href = `${window.location.origin}/auth/callback?mock=github`;
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
     } catch (err: any) {
-      console.warn('GitHub sign in failed, falling back to mock:', err);
-      window.location.href = `${window.location.origin}/auth/callback?mock=github`;
+      console.error('GitHub sign in failed:', err);
+      showToast('error', 'GitHub Sign In Failed', err.message || 'Could not connect to authentication provider');
     } finally {
       setOauthLoading(null);
     }
