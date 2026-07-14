@@ -30,10 +30,13 @@ export function createApp() {
   }));
 
   app.use(cors({
-    origin: [CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000'],
+    origin: [
+      "http://localhost:5173",
+      "https://learnflow-frontend-ng23.onrender.com"
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   }));
 
   app.use(compression() as express.RequestHandler);
