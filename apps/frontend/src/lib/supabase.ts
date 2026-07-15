@@ -12,17 +12,21 @@ const isUrlValid = (url: string) => {
   }
 };
 
+console.log("VITE_SUPABASE_URL =", import.meta.env.VITE_SUPABASE_URL);
+console.log("VITE_SUPABASE_ANON_KEY exists =", !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+
 export const isSupabaseConfigured = () => {
+  console.log("URL valid:", isUrlValid(supabaseUrl));
+  console.log("URL:", supabaseUrl);
+  console.log("Anon exists:", !!supabaseAnonKey);
+
   return (
     isUrlValid(supabaseUrl) &&
-    !supabaseUrl.includes('placeholder') &&
     !!supabaseAnonKey &&
-    !supabaseAnonKey.includes('placeholder')
+    !supabaseUrl.includes("placeholder") &&
+    !supabaseAnonKey.includes("placeholder")
   );
 };
-
-console.log("Supabase URL:", supabaseUrl);
-console.log("Supabase Configured:", isSupabaseConfigured());
 
 export const supabase = isSupabaseConfigured()
   ? createClient(supabaseUrl, supabaseAnonKey, {
