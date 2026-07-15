@@ -125,6 +125,7 @@ model User {
   longestStreak           Int       @default(0)
   streakFreezeCount       Int       @default(0)
   lastActivityAt          DateTime?
+  lastLoginAt             DateTime?
   interviewReadinessScore Int       @default(0)
   dailyGoalProgress       Int       @default(0)
   dailyGoalTarget         Int       @default(50)

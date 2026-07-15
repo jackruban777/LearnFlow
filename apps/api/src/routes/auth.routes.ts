@@ -93,6 +93,12 @@ authRouter.post('/login', async (req, res, next) => {
     const token = await signToken({ userId: user.id, email: user.email, role: user.role, plan: user.plan });
     const refreshToken = await signRefreshToken({ userId: user.id });
 
+    // Update last login timestamp (non-blocking — never delays the response)
+    prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    }).catch((err) => console.warn('⚠️ Could not update lastLoginAt:', (err as Error).message));
+
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -112,6 +118,7 @@ authRouter.post('/login', async (req, res, next) => {
           plan: user.plan,
           xp: user.xp,
           level: user.level,
+          lastLoginAt: new Date(),
         }
       },
       message: 'Login successful'
@@ -147,6 +154,12 @@ authRouter.post('/refresh', async (req, res, next) => {
 
     const token = await signToken({ userId: user.id, email: user.email, role: user.role, plan: user.plan });
     const newRefreshToken = await signRefreshToken({ userId: user.id });
+
+    // Update last login timestamp on successful token refresh (non-blocking)
+    prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    }).catch((err) => console.warn('⚠️ Could not update lastLoginAt on refresh:', (err as Error).message));
 
     res.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
@@ -308,6 +321,7 @@ authRouter.post('/oauth-login', async (req, res, next) => {
         update: {
           // Keep name/provider fresh on every login
           name,
+          lastLoginAt: new Date(),
         },
         create: {
           name,
@@ -316,6 +330,7 @@ authRouter.post('/oauth-login', async (req, res, next) => {
           plan: 'FREE',
           xp: 0,
           level: 1,
+          lastLoginAt: new Date(),
           oauthAccounts: {
             create: {
               provider,
