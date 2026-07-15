@@ -40,6 +40,8 @@ export const supabase = isSupabaseConfigured()
   : ({
       auth: {
         getSession: async () => ({ data: { session: null }, error: null }),
+        signUp: async () => ({ data: { user: null }, error: null }),
+        signInWithPassword: async () => ({ data: { session: null }, error: null }),
         signInWithOAuth: async ({ provider }: { provider: string }) => {
           return { data: null, error: { message: 'MOCK_FALLBACK', status: 400 } as any };
         },

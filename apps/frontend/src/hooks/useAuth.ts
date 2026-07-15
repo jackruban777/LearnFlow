@@ -2,6 +2,7 @@ import { useAuthStore } from '../stores/auth.store';
 import { api } from '../lib/api';
 import { useNotification } from './useNotification';
 import { useNavigate } from 'react-router-dom';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 export function useAuth() {
   const { user, isAuthenticated, isGuest, accessToken, setAccessToken, setUser, logout } =
@@ -49,11 +50,41 @@ export function useAuth() {
   const register = async (name: string, email: string, password: string) => {
     try {
       console.log('[Auth] Attempting registration for:', email);
+
+      // Register in Supabase first so the user is visible under Users in Supabase
+      if (isSupabaseConfigured()) {
+        console.log('[Auth] Registering user in Supabase Auth...');
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              full_name: name,
+            },
+          },
+        });
+        if (authError) {
+          console.error('[Auth] Supabase signUp error:', authError);
+          throw authError;
+        }
+        console.log('[Auth] Supabase signUp successful:', authData);
+      }
+
+      // Register in local database
       const res = await api.post('/auth/register', { name, email, password });
       const { token, user: userData } = res.data.data;
       setAccessToken(token);
       setUser(userData);
       console.log('[Auth] Registration successful for:', userData.email);
+
+      // Clean up Supabase session since we use our own JWT
+      if (isSupabaseConfigured()) {
+        try {
+          await supabase.auth.signOut();
+        } catch (_) {}
+      }
+
       showToast('success', 'Account created!', 'Welcome to LearnFlow 🎉');
       
       const enrolled = await handlePendingEnrollment();
