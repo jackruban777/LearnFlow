@@ -18,6 +18,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { GlassBadge } from '../components/ui/GlassBadge';
 import { GlassButton } from '../components/ui/GlassButton';
 import { Certificate } from '../components/ui/Certificate';
+import { CertificateBody } from '../components/ui/CertificateBody';
 import { api } from '../lib/api';
 import { useNotification } from '../hooks/useNotification';
 import { useAuthStore } from '../stores/auth.store';
@@ -657,6 +658,70 @@ export function Roadmap() {
             )}
           </div>
         </GlassCard>
+
+        {data.status === 'COMPLETED' && (
+          <div className="mt-8 space-y-3">
+            {/* Header row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{
+                    background: 'rgba(239,68,68,0.08)',
+                    border: '1px solid rgba(239,68,68,0.18)',
+                    color: '#f87171',
+                  }}
+                >
+                  <Lock size={11} weight="fill" />
+                  Read-only Preview — Cannot be edited
+                </div>
+                <span className="text-xs text-gray-500">
+                  Official Completion Certificate
+                </span>
+              </div>
+            </div>
+
+            {/* Preview wrapper — completely non-interactive */}
+            <div
+              style={{
+                position: 'relative',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
+              }}
+            >
+              {/* Invisible lock overlay — blocks all pointer events & text selection */}
+              <div
+                aria-label="Certificate preview is read-only"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: 50,
+                  cursor: 'not-allowed',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  pointerEvents: 'all',
+                  background: 'transparent',
+                }}
+              />
+
+              <CertificateBody
+                recipientName={user?.name ?? 'Learner'}
+                skillName={roadmap.skill.name}
+                skillCategory={roadmap.skill.category}
+                completionDate={new Date().toISOString()}
+                masteryScore={Math.round(masteryScore)}
+                enrollmentId={data.id}
+              />
+            </div>
+
+            {/* Subtext */}
+            <p className="text-center text-[11px] text-gray-600">
+              This is a display-only preview. Click <span className="text-accent-violet font-medium">Generate Certificate</span> to open the printable version.
+            </p>
+          </div>
+        )}
 
       </div>
     </AppShell>
