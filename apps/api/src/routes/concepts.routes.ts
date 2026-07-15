@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
-import { redis, REDIS_KEYS } from '../lib/redis.js';
+import { get, setEx, REDIS_KEYS } from '../lib/redis.js';
 import { requireAuth } from '../middleware/auth.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { mockDb } from '../lib/mockDb.js';
@@ -15,7 +15,7 @@ conceptsRouter.get('/:id', requireAuth, async (req, res, next) => {
 
     let content: string | null = null;
     try {
-      content = await redis.get(cacheKey);
+      content = await get(cacheKey);
     } catch (err) {
       console.warn('⚠️ Redis error reading lesson cache:', (err as Error).message);
     }
@@ -39,7 +39,7 @@ conceptsRouter.get('/:id', requireAuth, async (req, res, next) => {
 
       if (concept && concept.lessonContent) {
         try {
-          await redis.setex(cacheKey, 24 * 60 * 60, concept.lessonContent); // Cache for 24 hours
+          await setEx(cacheKey, 24 * 60 * 60, concept.lessonContent); // Cache for 24 hours
         } catch (err) {
           // Ignore
         }

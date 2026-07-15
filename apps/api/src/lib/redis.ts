@@ -46,31 +46,82 @@ redis.connect().catch(() => {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+export const isRedisReady = (): boolean => {
+  return redis.status === 'ready';
+};
+
 export async function setEx(key: string, ttlSeconds: number, value: string): Promise<void> {
-  await redis.setex(key, ttlSeconds, value);
+  if (!isRedisReady()) return;
+  try {
+    await redis.setex(key, ttlSeconds, value);
+  } catch (err) {
+    console.warn('⚠️ Redis setEx failed:', (err as Error).message);
+  }
 }
 
 export async function get(key: string): Promise<string | null> {
-  return redis.get(key);
+  if (!isRedisReady()) return null;
+  try {
+    return await redis.get(key);
+  } catch (err) {
+    console.warn('⚠️ Redis get failed:', (err as Error).message);
+    return null;
+  }
 }
 
 export async function del(key: string): Promise<void> {
-  await redis.del(key);
+  if (!isRedisReady()) return;
+  try {
+    await redis.del(key);
+  } catch (err) {
+    console.warn('⚠️ Redis del failed:', (err as Error).message);
+  }
+}
+
+export async function incr(key: string): Promise<number | null> {
+  if (!isRedisReady()) return null;
+  try {
+    return await redis.incr(key);
+  } catch (err) {
+    console.warn('⚠️ Redis incr failed:', (err as Error).message);
+    return null;
+  }
+}
+
+export async function expire(key: string, seconds: number): Promise<number | null> {
+  if (!isRedisReady()) return null;
+  try {
+    return await redis.expire(key, seconds);
+  } catch (err) {
+    console.warn('⚠️ Redis expire failed:', (err as Error).message);
+    return null;
+  }
 }
 
 export async function setJson<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
-  const serialized = JSON.stringify(value);
-  if (ttlSeconds) {
-    await redis.setex(key, ttlSeconds, serialized);
-  } else {
-    await redis.set(key, serialized);
+  if (!isRedisReady()) return;
+  try {
+    const serialized = JSON.stringify(value);
+    if (ttlSeconds) {
+      await redis.setex(key, ttlSeconds, serialized);
+    } else {
+      await redis.set(key, serialized);
+    }
+  } catch (err) {
+    console.warn('⚠️ Redis setJson failed:', (err as Error).message);
   }
 }
 
 export async function getJson<T>(key: string): Promise<T | null> {
-  const value = await redis.get(key);
-  if (!value) return null;
-  return JSON.parse(value) as T;
+  if (!isRedisReady()) return null;
+  try {
+    const value = await redis.get(key);
+    if (!value) return null;
+    return JSON.parse(value) as T;
+  } catch (err) {
+    console.warn('⚠️ Redis getJson failed:', (err as Error).message);
+    return null;
+  }
 }
 
 // Redis key namespacing helpers

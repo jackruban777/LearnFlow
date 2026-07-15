@@ -118,8 +118,8 @@ export async function getWebContextForSkill(skillName: string): Promise<string> 
       console.log(`✅ Successfully fetched web context via library for: ${skillName}`);
       return snippets;
     }
-  } catch (error) {
-    console.error(`❌ Web search failed for ${skillName}:`, error);
+  } catch (error: any) {
+    console.warn(`⚠️ Web search failed for ${skillName} (falling back to general knowledge):`, error.message || error);
     return `Could not retrieve external data due to network error. Proceed with general knowledge.`;
   }
 }

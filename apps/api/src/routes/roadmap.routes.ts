@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { GenerateRoadmapSchema, ProgressStatus } from '@learnflow/shared';
 import { prisma } from '../lib/prisma.js';
-import { redis, REDIS_KEYS } from '../lib/redis.js';
+import { incr, expire, REDIS_KEYS } from '../lib/redis.js';
 import { requireAuth, optionalAuth, guestRoadmapLimit } from '../middleware/auth.js';
 import { generateRoadmap } from '../services/ai/roadmap.service.js';
 import { AppError } from '../middleware/errorHandler.js';
@@ -99,8 +99,8 @@ roadmapRouter.post('/generate', optionalAuth, guestRoadmapLimit, async (req, res
       try {
         const ip = req.ip || req.socket.remoteAddress || 'unknown-ip';
         const key = REDIS_KEYS.guestRoadmapCount(ip);
-        await redis.incr(key);
-        await redis.expire(key, 24 * 60 * 60); // 24 hour limit reset
+        await incr(key);
+        await expire(key, 24 * 60 * 60); // 24 hour limit reset
       } catch (redisErr) {
         console.warn('⚠️ Redis error incrementing guest count:', (redisErr as Error).message);
       }

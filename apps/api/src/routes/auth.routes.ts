@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { RegisterSchema, LoginSchema, ResetPasswordSchema, ForgotPasswordSchema, isEmailValidAndAppropriate } from '@learnflow/shared';
 import { prisma } from '../lib/prisma.js';
-import { redis, REDIS_KEYS } from '../lib/redis.js';
+import { setEx, del, REDIS_KEYS } from '../lib/redis.js';
 import { signToken, signRefreshToken, verifyToken } from '../middleware/auth.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { mockDb } from '../lib/mockDb.js';
@@ -211,7 +211,7 @@ authRouter.post('/forgot-password', async (req, res, next) => {
 
     try {
       const key = REDIS_KEYS.passwordResetOTP(user.id);
-      await redis.setex(key, 600, otp);
+      await setEx(key, 600, otp);
     } catch (err) {
       console.warn('⚠️ Redis write failed for OTP:', (err as Error).message);
     }
@@ -269,7 +269,7 @@ authRouter.post('/reset-password', async (req, res, next) => {
 
     try {
       const key = REDIS_KEYS.passwordResetOTP(userId);
-      await redis.del(key);
+      await del(key);
     } catch (err) {
       // Ignore
     }

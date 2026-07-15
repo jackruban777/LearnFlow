@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { SignJWT, jwtVerify } from 'jose';
-import { redis, REDIS_KEYS } from '../lib/redis.js';
+import { get, REDIS_KEYS } from '../lib/redis.js';
 import { AppError } from './errorHandler.js';
 
 // Extend Express Request type locally
@@ -118,7 +118,7 @@ export async function guestRoadmapLimit(req: Request, res: Response, next: NextF
     // Get the count from Redis
     let count = 0;
     try {
-      const countStr = await redis.get(key);
+      const countStr = await get(key);
       count = countStr ? parseInt(countStr, 10) : 0;
     } catch (err) {
       console.warn('⚠️ Redis error in guest limit check. Skipping limit constraint.', (err as Error).message);
